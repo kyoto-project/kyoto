@@ -37,11 +37,11 @@ class Dispatcher(object):
         def transform(module):
             module = module()
             methods = module.methods(False)
-            keys = map(termformat.binary_to_atom, methods.keys())
+            keys = (termformat.binary_to_atom(k) for k in methods.keys())
             pairs = izip(keys, methods.values())
-            module_name = getattr(module, "register_as", module.__class__.__name__)
-            return (termformat.binary_to_atom(module_name), dict(pairs))
-        return dict(map(transform, modules))
+            name = getattr(module, "register_as")
+            return (termformat.binary_to_atom(name), dict(pairs))
+        return dict((transform(m) for m in modules))
 
     def transform_exceptions(function):
         """

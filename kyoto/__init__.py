@@ -2,45 +2,60 @@ import inspect
 
 
 def private(function):
-  if not getattr(function, "private", False):
-    function.private = True
-  return function
+    """
+    Marks given function as private
+    (which'll be not accessible outside of this module)
+    """
+    if not getattr(function, "private", False):
+        function.private = True
+    return function
+
 
 def is_private(function):
-  name = function.__name__
-  if name.startswith("__"):
-    return True
-  else:
-    return getattr(function, "private", False)
+    """
+    Returns true if given function is a private
+    """
+    name = function.__name__
+    if name.startswith("__"):
+        return True
+    else:
+        return getattr(function, "private", False)
+
 
 def blocking(function):
-  if not getattr(function, "blocking", False):
-    function.blocking = True
-  return function
+    """
+    Marks given function as blocking (which'll be executed in another thread)
+    """
+    if not getattr(function, "blocking", False):
+        function.blocking = True
+    return function
+
 
 def is_blocking(function):
-  return getattr(function, "blocking", False)
+    """
+    Returns true if function is marked as blocking
+    """
+    return getattr(function, "blocking", False)
 
 
 class Module(object):
 
-  def __init__(self):
-    """
-    Module constructor
-    """
-    if not getattr(self, "register_as", None):
-      self.register_as = self.__class__.__name__
+    def __init__(self):
+        """
+        Module constructor
+        """
+        if not getattr(self, "register_as", None):
+            self.register_as = self.__class__.__name__
 
-  def methods(self, as_strings=True):
-    """
-    Returns all available module methods
-    @as_strings: boolean, if true, returns tuple with method names,
-    otherwise returns dictionary with method names as keys and function bodies as values
-    """
-    methods = inspect.getmembers(self, inspect.ismethod)
-    methods = ((name, func) for name, func in methods if not is_private(func))
-    if as_strings:
-      methods = tuple(name for name, func in methods)
-    else:
-      methods = {name:func for name, func in methods}
-    return methods
+    def methods(self, as_strings=True):
+        """
+        Returns all public module methods
+        """
+        methods = inspect.getmembers(self, inspect.ismethod)
+        methods = ((name, func)
+                   for name, func in methods if not is_private(func))
+        if as_strings:
+            methods = tuple(name for name, func in methods)
+        else:
+            methods = {name: func for name, func in methods}
+        return methods

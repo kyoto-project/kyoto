@@ -21,6 +21,7 @@ Network settings
 MAX_BERP_SIZE = 33554432 # 32 megabytes
 READ_CHUNK_SIZE = 65536 # 64 kilobytes
 COMPRESS_RESPONSE = False
+DISABLE_NAGLE = True
 
 """
 Logging settings

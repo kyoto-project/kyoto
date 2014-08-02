@@ -54,8 +54,7 @@ class Module(object):
         Returns all public module methods
         """
         methods = inspect.getmembers(self, inspect.ismethod)
-        methods = ((name, func)
-                   for name, func in methods if not is_private(func))
+        methods = ((k, v) for k, v in methods if not is_private(v))
         if as_strings:
             methods = tuple(name for name, func in methods)
         else:

@@ -39,9 +39,9 @@ def receive(connection, server=True):
                     length, message, tail = kyoto.utils.berp.unpack(buffer)
                 except ValueError as exception:
                     break  # received incomplete packet, continue loop
-                except kyoto.utils.berp.MaxBERPLengthError as exception:
+                except kyoto.utils.berp.MaxBERPSizeError as exception:
                     if server:
-                        exception = (":error", (":protocol", 3, "MaxBERPLengthError", str(exception), []))
+                        exception = (":error", (":protocol", 3, "MaxBERPSizeError", str(exception), []))
                         exception = kyoto.utils.berp.pack(beretta.encode(exception))
                         connection.sendall(exception)
                     raise

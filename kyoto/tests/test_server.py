@@ -230,7 +230,7 @@ class ServerTestCase(unittest.TestCase):
         message = struct.pack('>I', packet_size) + b"message"
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
-        self.assertEqual(beretta.decode(next(response)), (':error', (':protocol', 3, 'MaxBERPLengthError', 'Invalid BERP length: 33554432/33555456', [])))
+        self.assertEqual(beretta.decode(next(response)), (':error', (':protocol', 3, 'MaxBERPSizeError', 'Invalid BERP length: 33554432/33555456', [])))
 
     def tearDown(self):
         self.connection.close()

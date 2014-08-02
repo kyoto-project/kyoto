@@ -29,14 +29,14 @@ def send(source):
 
 
 def receive(connection, server=True):
-    buffer = b""
+    receive_buffer = b""
     while connection:
         message = connection.recv(kyoto.conf.settings.READ_CHUNK_SIZE)
         if message:
-            buffer += message
-            while len(buffer) >= 4:
+            receive_buffer += message
+            while len(receive_buffer) >= 4:
                 try:
-                    length, message, tail = kyoto.utils.berp.unpack(buffer)
+                    _, message, tail = kyoto.utils.berp.unpack(receive_buffer)
                 except ValueError as exception:
                     break  # received incomplete packet, continue loop
                 except kyoto.utils.berp.MaxBERPSizeError as exception:
@@ -46,7 +46,7 @@ def receive(connection, server=True):
                         connection.sendall(exception)
                     raise
                 else:
-                    buffer = tail
+                    receive_buffer = tail
                     yield message
         else:
             break

@@ -20,8 +20,8 @@ class Dispatcher(object):
     def __init__(self, modules, address):
         self.address = address
         self.handlers = {
-            ':call': self.handle_call,
-            ':cast': self.handle_cast,
+            ":call": self.handle_call,
+            ":cast": self.handle_cast,
         }
         self.modules = self.transform_modules(modules)
 
@@ -45,7 +45,7 @@ class Dispatcher(object):
 
     def transform_exceptions(function):
         """
-        Catches exceptions and transforms it into BERT response terms.
+        Catches exceptions and transforms it to BERT response terms.
         Python: raise ValueError("with message")
         BERT: {error, {user, 500, "ValueError", "with message", ["Traceback (most recent call last):", ...]}}
         """
@@ -63,7 +63,7 @@ class Dispatcher(object):
 
     def transform_response(function):
         """
-        Transforms function output into BERT response terms.
+        Transforms function output to BERT response terms.
         1. No response
             Python: None
             BERT: {noreply}

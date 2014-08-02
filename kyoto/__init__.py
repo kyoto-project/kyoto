@@ -40,11 +40,13 @@ def is_blocking(function):
 
 class Module(object):
 
+    register_as = None
+
     def __init__(self):
         """
         Module constructor
         """
-        if not getattr(self, "register_as", None):
+        if not self.register_as:
             self.register_as = self.__class__.__name__
 
     def methods(self, as_strings=True):

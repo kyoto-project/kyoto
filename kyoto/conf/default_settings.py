@@ -1,6 +1,7 @@
 import os
 import multiprocessing
 import concurrent.futures
+import kyoto.network.connection
 
 
 """
@@ -22,6 +23,8 @@ MAX_BERP_SIZE = 33554432  # 32 megabytes
 READ_CHUNK_SIZE = 65536  # 64 kilobytes
 COMPRESS_RESPONSE = False
 DISABLE_NAGLE = True
+CONNECTION_TIMEOUT = 10 # in seconds
+CONNECTION_MANAGER_CLASS = kyoto.network.connection.SingleConnectionManager
 
 """
 Logging settings

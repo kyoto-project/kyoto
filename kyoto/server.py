@@ -55,7 +55,7 @@ class Agent(object):
                         self.state['stream']['on'] = True
                         self.state['stream']['queue'] = gevent.queue.Queue()
                 else:
-                    yield (":error", (":server", 4, "ValueError", "Invalid MFA: {0}".format(request)))
+                    yield (":error", (":server", 4, "ValueError", "Invalid MFA: {0}".format(request), []))
         else:
             if not self.state['stream']['request']:
                 try:

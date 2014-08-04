@@ -27,6 +27,10 @@ class AgentTestCase(unittest.TestCase):
         response = self.agent.handle(beretta.encode((":call", ":Echo", ":kittens", ["hello"])))
         self.assertEqual(beretta.decode(next(response)), (':error', (':server', 2, 'NameError', "No such function: ':kittens'", [])))
 
+    def test_invalid_mfa(self):
+        response = self.agent.handle(beretta.encode((":call", ":Echo", ":kittens")))
+        self.assertEqual(beretta.decode(next(response)), (':error', (':server', 4, 'ValueError', "Invalid MFA: (u':call', u':Echo', u':kittens')", [])))
+
     def test_sync_request(self):
         message = beretta.encode((":call", ":Echo", ":echo", ["hello"]))
         response = self.agent.handle(message)

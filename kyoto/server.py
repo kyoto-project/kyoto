@@ -88,7 +88,7 @@ class BertRPCServer(gevent.server.StreamServer):
     def __init__(self, modules, *args, **kwargs):
         self.modules = modules
         self.address = kyoto.conf.settings.BIND_ADDRESS
-        super(BertRPCServer, self).__init__(self.address)
+        super(BertRPCServer, self).__init__(self.address, *args, **kwargs)
 
     def handle(self, connection, address):
         agent = Agent(self.modules, address)

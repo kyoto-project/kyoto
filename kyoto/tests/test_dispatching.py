@@ -1,5 +1,6 @@
 import time
 import unittest
+import threading
 import gevent.queue
 
 import kyoto
@@ -89,3 +90,9 @@ class DispatcherTestCase(unittest.TestCase):
         request = (":cast", ":Echo", ":echo_with_exception", ["hello"])
         response = self.dispatcher.handle(request)
         self.assertEqual(next(response), (":noreply", ))
+
+    def test_blocking_call(self):
+        request = (":call", ":Echo", ":blocking_echo", [])
+        this_thread_id = threading.current_thread().ident
+        (_, blocking_thread_id) = next(self.dispatcher.handle(request))
+        self.assertTrue(this_thread_id != blocking_thread_id)

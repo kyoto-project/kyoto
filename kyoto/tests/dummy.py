@@ -1,5 +1,8 @@
 import kyoto
+import kyoto.conf
+
 import gevent
+import threading
 
 
 class Echo(kyoto.Module):
@@ -55,3 +58,18 @@ class Echo(kyoto.Module):
         for message in stream:
             length += len(message)
         return length
+
+    def large_echo(self, message):
+        """
+        Raises MAX_BERP_SIZE exception
+        """
+        message = message * kyoto.conf.settings.MAX_BERP_SIZE
+        return message
+
+    @kyoto.blocking
+    def blocking_echo(self):
+        """
+        Must be executed in dedicated thread
+        """
+        thread = threading.current_thread()
+        return thread.ident

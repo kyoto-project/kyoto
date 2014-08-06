@@ -1,9 +1,11 @@
+import logging
+import beretta
+
 import gevent
 import gevent.queue
 import gevent.socket
 import gevent.server
 
-import beretta
 import kyoto.conf
 import kyoto.dispatch
 import kyoto.utils.berp
@@ -21,6 +23,7 @@ class Agent(object):
             },
         }
         self.address = address
+        self.logger = logging.getLogger("kyoto.server.Agent")
         self.dispatcher = kyoto.dispatch.Dispatcher(modules, address)
 
     def transform_response(function):
@@ -85,12 +88,14 @@ class Agent(object):
 
 class BertRPCServer(gevent.server.StreamServer):
 
-    def __init__(self, modules, *args, **kwargs):
+    def __init__(self, modules):
         self.modules = modules
         self.address = kyoto.conf.settings.BIND_ADDRESS
-        super(BertRPCServer, self).__init__(self.address, *args, **kwargs)
+        self.logger = logging.getLogger('kyoto.server.BertRPCServer')
+        super(BertRPCServer, self).__init__(self.address)
 
     def handle(self, connection, address):
+        self.logger.info("{0}:{1} connected".format(*address))
         agent = Agent(self.modules, address)
         stream = kyoto.network.stream.receive(connection)
         try:
@@ -98,5 +103,8 @@ class BertRPCServer(gevent.server.StreamServer):
                 for response in agent.handle(request):
                     message = kyoto.utils.berp.pack(response)
                     connection.sendall(message)
+        except Exception as exception:
+            self.logger.exception(exception)
         finally:
             connection.close()
+        self.logger.info("{0}:{1} disconnected".format(*address))

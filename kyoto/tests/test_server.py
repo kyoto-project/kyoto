@@ -124,7 +124,7 @@ class ServerTestCase(unittest.TestCase):
 
     def setUp(self):
         self.address = ('localhost', 1337)
-        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo], self.address)
+        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo])
         self.server.start()
         self.connection = gevent.socket.create_connection(self.address)
 

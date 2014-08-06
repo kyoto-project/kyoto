@@ -13,7 +13,7 @@ class SingleConnectionManagerTestCase(unittest.TestCase):
 
     def setUp(self):
         self.address = ('localhost', 1337)
-        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo], self.address)
+        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo])
         self.server.start()
         self.connections = kyoto.network.connection.SingleConnectionManager(self.address, 5)
 
@@ -44,7 +44,7 @@ class SharedConnectionManagerTestCase(unittest.TestCase):
 
     def setUp(self):
         self.address = ('localhost', 1337)
-        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo], self.address)
+        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo])
         self.server.start()
         self.connections = kyoto.network.connection.SharedConnectionManager(self.address, 5)
 
@@ -98,7 +98,7 @@ class StreamTestCase(unittest.TestCase):
 
     def setUp(self):
         self.address = ('localhost', 1337)
-        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo], self.address)
+        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo])
         self.server.start()
         self.connection = gevent.socket.create_connection(self.address)
 

@@ -7,17 +7,15 @@ import kyoto.network.connection
 """
 Common settings
 """
-
-HOSTNAME = os.environ.get("KYOTO_HOSTNAME", "localhost")
-PORT = os.environ.get("KYOTO_PORT", 1337)
-BIND_ADDRESS = (HOSTNAME, PORT)
-
 INSTALLED_MODULES = ()
-
 
 """
 Network settings
 """
+
+HOSTNAME = os.environ.get("KYOTO_HOSTNAME", "localhost")
+PORT = os.environ.get("KYOTO_PORT", 1337)
+BIND_ADDRESS = (HOSTNAME, PORT)
 
 MAX_BERP_SIZE = 33554432  # 32 megabytes
 READ_CHUNK_SIZE = 65536  # 64 kilobytes

@@ -1,6 +1,9 @@
 import inspect
 
 
+__version__ = "0.1.0"
+
+
 def private(function):
     """
     Marks given function as private

@@ -17,6 +17,8 @@ except ImportError:
 
 class Dispatcher(object):
 
+    __slots__ = ("address", "handlers", "modules")
+
     def __init__(self, modules, address):
         self.address = address
         self.handlers = {

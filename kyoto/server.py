@@ -15,6 +15,8 @@ import kyoto.network.stream
 
 class Agent(object):
 
+    __slots__ = ("state", "address", "logger", "dispatcher")
+
     def __init__(self, modules, address):
         self.state = {
             'stream': {

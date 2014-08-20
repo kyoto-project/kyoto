@@ -110,18 +110,18 @@ class Dispatcher(object):
 
     @transform_response
     def handle(self, request, **kwargs):
-        type, module, function, args = request
+        rtype, module, function, args = request
         if module in self.modules:
             if function in self.modules[module]:
                 function = self.modules[module][function]
                 if kyoto.is_blocking(function):
                     future = kyoto.conf.settings.BLOCKING_POOL.submit(self.handle_call, function, args, **kwargs)
-                    if type == ":call":
+                    if rtype == ":call":
                         response = future.result()
                     else:
                         response = None
                 else:
-                    response = self.handlers[type](function, args, **kwargs)
+                    response = self.handlers[rtype](function, args, **kwargs)
                 return response
             else:
                 return (":error", (":server", 2, "NameError", "No such function: '{0}'".format(function), []))

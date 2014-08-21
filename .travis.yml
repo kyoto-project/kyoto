@@ -1,0 +1,11 @@
+language: python
+matrix:
+  include:
+    - python: "2.7"
+      env: COMMON_REQUIREMENTS=requirements/py2x.txt
+    - python: "3.3"
+      env: COMMON_REQUIREMENTS=requirements/py3x.txt
+install:
+    - pip install -r requirements/base.txt
+    - pip install -r $COMMON_REQUIREMENTS
+script: nosetests

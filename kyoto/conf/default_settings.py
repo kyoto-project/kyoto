@@ -7,6 +7,7 @@ import kyoto.network.connection
 """
 Common settings
 """
+
 INSTALLED_MODULES = ()
 
 """
@@ -53,10 +54,6 @@ LOGGING = {
 }
 
 
-"""
-Blocking I/O related settings
-"""
-
 # list of modules which must be monkey-patched by gevent
 GEVENT_PATCH_MODULES = (
     "os",
@@ -65,6 +62,10 @@ GEVENT_PATCH_MODULES = (
     "select",
     "socket",
 )
+
+"""
+Blocking I/O settings
+"""
 
 BLOCKING_POOL_SIZE = getattr(os, "cpu_count", multiprocessing.cpu_count)()
 BLOCKING_POOL_CLASS = concurrent.futures.ThreadPoolExecutor

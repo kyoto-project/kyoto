@@ -1,4 +1,4 @@
-Kyoto
+Kyoto [![Build Status](https://travis-ci.org/kyoto-project/kyoto.svg?branch=master)](https://travis-ci.org/kyoto-project/kyoto)
 =====
 
 Python [BERT-RPC](http://bert-rpc.org/) implementation.

@@ -5,6 +5,7 @@ import termformat
 
 import kyoto
 import kyoto.conf
+import kyoto.utils.modules
 import kyoto.utils.validation
 
 try:
@@ -30,18 +31,17 @@ class Dispatcher(object):
     def transform_modules(self, modules):
         """
         Creates dispatching dictionary from given list of modules:
-        [kyoto.tests.dummy.Echo] => {
-          ":Echo": {
+        [kyoto.tests.dummy] => {
+          ":dummy": {
             ":echo": <function object>,
           },
         }
         """
         def transform(module):
-            module = module()
-            methods = module.methods(False)
-            keys = (termformat.binary_to_atom(k) for k in methods.keys())
-            pairs = izip(keys, methods.values())
-            name = getattr(module, "register_as")
+            name = kyoto.utils.modules.get_module_name(module)
+            functions = kyoto.utils.modules.get_module_functions(module, False)
+            keys = (termformat.binary_to_atom(k) for k in functions.keys())
+            pairs = izip(keys, functions.values())
             return (termformat.binary_to_atom(name), dict(pairs))
         return dict((transform(m) for m in modules))
 

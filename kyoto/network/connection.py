@@ -10,7 +10,7 @@ class BaseConnectionManager(object):
 
     def create(self):
         """
-        Abstract method for creating connection
+        Creates TCP connection
         """
         connection = gevent.socket.create_connection(self.address, self.timeout)
         connection.setsockopt(gevent.socket.SOL_SOCKET, gevent.socket.SO_KEEPALIVE, 1)
@@ -19,25 +19,25 @@ class BaseConnectionManager(object):
 
     def destroy(self, connection):
         """
-        Abstract method for closing connection
+        Closes connection
         """
         connection.close()
 
     def is_alive(self, connection):
         """
-        Abstract method for checking that connection is still alive
+        Checks that connection is still alive
         """
         return not connection.closed
 
     def acquire(self):
         """
-        Abstract method for acquiring connection
+        Acquires connection
         """
         raise NotImplementedError
 
     def release(self, connection):
         """
-        Abstract method for releasing connection
+        Releases connection
         """
         raise NotImplementedError
 
@@ -65,7 +65,7 @@ class SingleConnectionManager(BaseConnectionManager):
 class SharedConnectionManager(BaseConnectionManager):
 
     """
-    One shared connection with lock on acquiring
+    One shared connection with lock
     """
 
     def __init__(self, *args, **kwargs):

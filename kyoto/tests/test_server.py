@@ -15,7 +15,7 @@ class AgentTestCase(unittest.TestCase):
 
     def setUp(self):
         self.modules = [
-            kyoto.tests.dummy.Echo,
+            kyoto.tests.dummy,
         ]
         self.agent = kyoto.server.Agent(self.modules, ('localhost', 1337))
 
@@ -24,11 +24,11 @@ class AgentTestCase(unittest.TestCase):
         self.assertEqual(beretta.decode(next(response)), (':error', (':server', 1, 'NameError', "No such module: ':Kittens'", [])))
 
     def test_unknown_function(self):
-        response = self.agent.handle(beretta.encode((":call", ":Echo", ":kittens", ["hello"])))
+        response = self.agent.handle(beretta.encode((":call", ":dummy", ":kittens", ["hello"])))
         self.assertEqual(beretta.decode(next(response)), (':error', (':server', 2, 'NameError', "No such function: ':kittens'", [])))
 
     def test_invalid_mfa(self):
-        response = self.agent.handle(beretta.encode((":call", ":Echo", ":kittens")))
+        response = self.agent.handle(beretta.encode((":call", ":dummy", ":kittens")))
         response = beretta.decode(next(response))
         self.assertEqual(response[1][0], ":server")
         self.assertEqual(response[1][1], 4)
@@ -36,12 +36,12 @@ class AgentTestCase(unittest.TestCase):
         self.assertTrue(response[1][3].startswith("Invalid MFA"))
 
     def test_sync_request(self):
-        message = beretta.encode((":call", ":Echo", ":echo", ["hello"]))
+        message = beretta.encode((":call", ":dummy", ":echo", ["hello"]))
         response = self.agent.handle(message)
         self.assertEqual(next(response), beretta.encode((":reply", "hello?")))
 
     def test_async_request(self):
-        message = beretta.encode((":cast", ":Echo", ":echo", ["hello"]))
+        message = beretta.encode((":cast", ":dummy", ":echo", ["hello"]))
         response = self.agent.handle(message)
         self.assertEqual(next(response), beretta.encode((":noreply",)))
 
@@ -49,7 +49,7 @@ class AgentTestCase(unittest.TestCase):
         self.assertEqual(self.agent.state['stream']['on'], False)
         self.assertEqual(self.agent.state['stream']['request'], None)
         info = beretta.encode((":info", ":stream", []))
-        request = beretta.encode((":call", ":Echo", ":streaming_echo_request", []))
+        request = beretta.encode((":call", ":dummy", ":streaming_echo_request", []))
         with self.assertRaises(StopIteration):
             response = next(self.agent.handle(info))
         self.assertEqual(self.agent.state['stream']['on'], True)
@@ -57,7 +57,7 @@ class AgentTestCase(unittest.TestCase):
         with self.assertRaises(StopIteration):
             response = next(self.agent.handle(request))
         self.assertEqual(self.agent.state['stream']['on'], True)
-        self.assertEqual(self.agent.state['stream']['request'], (":call", ":Echo", ":streaming_echo_request", []))
+        self.assertEqual(self.agent.state['stream']['request'], (":call", ":dummy", ":streaming_echo_request", []))
         for message in ["hello" for _ in range(10)]:
             with self.assertRaises(StopIteration):
                 response = next(self.agent.handle(message))
@@ -71,7 +71,7 @@ class AgentTestCase(unittest.TestCase):
         self.assertEqual(self.agent.state['stream']['request'], None)
 
     def test_sync_call_with_streaming_response(self):
-        request = beretta.encode((":call", ":Echo", ":streaming_echo_response", ["hello"]))
+        request = beretta.encode((":call", ":dummy", ":streaming_echo_response", ["hello"]))
         response = self.agent.handle(request)
         self.assertEqual(beretta.decode(next(response)), (":info", ":stream", []))
         self.assertEqual(beretta.decode(next(response)), (":reply", {"count": 10}))
@@ -80,19 +80,19 @@ class AgentTestCase(unittest.TestCase):
         self.assertEqual(next(response), b"")
 
     def test_sync_call_with_broken_streaming_echo(self):
-        request = beretta.encode((":call", ":Echo", ":broken_streaming_echo", ["hello"]))
+        request = beretta.encode((":call", ":dummy", ":broken_streaming_echo", ["hello"]))
         response = self.agent.handle(request)
         self.assertEqual(beretta.decode(next(response)), (":info", ":stream", []))
         self.assertEqual(beretta.decode(next(response)), (":reply", {"count": 10}))
         self.assertEqual(next(response), b"")
 
     def test_async_call_with_streaming_response(self):
-        request = beretta.encode((":cast", ":Echo", ":streaming_echo_response", ["hello"]))
+        request = beretta.encode((":cast", ":dummy", ":streaming_echo_response", ["hello"]))
         response = self.agent.handle(request)
         self.assertEqual(beretta.decode(next(response)), (':noreply',))
 
     def test_sync_call_exception(self):
-        request = beretta.encode((":call", ":Echo", ":echo_with_exception", ["hello"]))
+        request = beretta.encode((":call", ":dummy", ":echo_with_exception", ["hello"]))
         response = beretta.decode(next(self.agent.handle(request)))
         self.assertEqual(response[0], ":error")
         self.assertEqual(response[1][0], ":user")
@@ -102,12 +102,12 @@ class AgentTestCase(unittest.TestCase):
 
     def test_async_call_exception(self):
         request = beretta.encode(
-            (":cast", ":Echo", ":echo_with_exception", ["hello"]))
+            (":cast", ":dummy", ":echo_with_exception", ["hello"]))
         response = self.agent.handle(request)
         self.assertEqual(beretta.decode(next(response)), (":noreply", ))
 
     def test_call_with_malformed_request(self):
-        request = beretta.encode((":call", ":Echo", ":echo", ["hello"]))[2:]
+        request = beretta.encode((":call", ":dummy", ":echo", ["hello"]))[2:]
         response = next(self.agent.handle(request))
         self.assertEqual(beretta.decode(response), (":error", (":server", 3, "ValueError", "Corrupt request data", [])))
 
@@ -115,7 +115,7 @@ class AgentTestCase(unittest.TestCase):
         self.assertEqual(self.agent.state['stream']['on'], False)
         self.assertEqual(self.agent.state['stream']['request'], None)
         info = beretta.encode((":info", ":stream", []))
-        request = beretta.encode((":call", ":Echo", ":echo", ["hello"]))[2:]
+        request = beretta.encode((":call", ":dummy", ":echo", ["hello"]))[2:]
         with self.assertRaises(StopIteration):
             response = next(self.agent.handle(info))
         response = next(self.agent.handle(request))
@@ -128,7 +128,7 @@ class ServerTestCase(unittest.TestCase):
 
     def setUp(self):
         self.address = ('localhost', 1337)
-        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo])
+        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy])
         self.server.start()
         self.connection = gevent.socket.create_connection(self.address)
 
@@ -139,19 +139,19 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(beretta.decode(next(response)), (':error', (':server', 1, 'NameError', "No such module: ':Kittens'", [])))
 
     def test_unknown_function(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":kittens", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":kittens", ["hello"])))
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(beretta.decode(next(response)), (':error', (':server', 2, 'NameError', "No such function: ':kittens'", [])))
 
     def test_sync_request(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo", ["hello"])))
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(beretta.decode(next(response)), (":reply", "hello?"))
 
     def test_async_request(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":cast", ":Echo", ":echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":cast", ":dummy", ":echo", ["hello"])))
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(beretta.decode(next(response)), (":noreply", ))
@@ -159,7 +159,7 @@ class ServerTestCase(unittest.TestCase):
     def test_sync_with_streaming_request(self):
         message = kyoto.utils.berp.pack(beretta.encode((":info", ":stream", [])))
         status = self.connection.sendall(message)
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":streaming_echo_request", [])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":streaming_echo_request", [])))
         status = self.connection.sendall(message)
         for message in [b"hello" for _ in range(10)]:
             status = self.connection.sendall(kyoto.utils.berp.pack(message))
@@ -173,7 +173,7 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(next(response), b"")
 
     def test_sync_call_with_streaming_response(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":streaming_echo_response", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":streaming_echo_response", ["hello"])))
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(
@@ -185,7 +185,7 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(next(response), b"")
 
     def test_sync_call_with_broken_streaming_echo(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":broken_streaming_echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":broken_streaming_echo", ["hello"])))
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(
@@ -195,13 +195,13 @@ class ServerTestCase(unittest.TestCase):
         self.assertEqual(next(response), b"")
 
     def test_async_call_with_streaming_response(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":cast", ":Echo", ":streaming_echo_response", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":cast", ":dummy", ":streaming_echo_response", ["hello"])))
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(beretta.decode(next(response)), (':noreply',))
 
     def test_sync_call_exception(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo_with_exception", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo_with_exception", ["hello"])))
         status = self.connection.sendall(message)
         response = beretta.decode(
             next(kyoto.network.stream.receive(self.connection)))
@@ -214,13 +214,13 @@ class ServerTestCase(unittest.TestCase):
             response[1][4][0], "Traceback (most recent call last):")
 
     def test_async_call_exception(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":cast", ":Echo", ":echo_with_exception", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":cast", ":dummy", ":echo_with_exception", ["hello"])))
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(beretta.decode(next(response)), (":noreply", ))
 
     def test_call_with_malformed_request(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo", ["hello"]))[2:])
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo", ["hello"]))[2:])
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(beretta.decode(next(response)), (":error", (":server", 3, "ValueError", "Corrupt request data", [])))
@@ -228,7 +228,7 @@ class ServerTestCase(unittest.TestCase):
     def test_stream_call_with_malformed_request(self):
         message = kyoto.utils.berp.pack(beretta.encode((":info", ":stream", [])))
         status = self.connection.sendall(message)
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo", ["hello"]))[2:])
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo", ["hello"]))[2:])
         status = self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(beretta.decode(next(response)), (":error", (":server", 3, "ValueError", "Corrupt request data", [])))

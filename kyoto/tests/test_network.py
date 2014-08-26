@@ -13,7 +13,7 @@ class SingleConnectionManagerTestCase(unittest.TestCase):
 
     def setUp(self):
         self.address = ('localhost', 1337)
-        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo])
+        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy])
         self.server.start()
         self.connections = kyoto.network.connection.SingleConnectionManager(self.address, 5)
 
@@ -23,7 +23,7 @@ class SingleConnectionManagerTestCase(unittest.TestCase):
 
     def test_use_connection(self):
         connection = self.connections.acquire()
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo", ["hello"])))
         connection.sendall(message)
         response = kyoto.network.stream.receive(connection)
         self.assertEqual(beretta.decode(next(response)), (":reply", "hello?"))
@@ -44,7 +44,7 @@ class SharedConnectionManagerTestCase(unittest.TestCase):
 
     def setUp(self):
         self.address = ('localhost', 1337)
-        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo])
+        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy])
         self.server.start()
         self.connections = kyoto.network.connection.SharedConnectionManager(self.address, 5)
 
@@ -58,7 +58,7 @@ class SharedConnectionManagerTestCase(unittest.TestCase):
 
     def test_use_connection(self):
         connection = self.connections.acquire()
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo", ["hello"])))
         connection.sendall(message)
         response = kyoto.network.stream.receive(connection)
         self.assertEqual(beretta.decode(next(response)), (":reply", "hello?"))
@@ -66,7 +66,7 @@ class SharedConnectionManagerTestCase(unittest.TestCase):
 
     def test_reopen_connection(self):
         connection = self.connections.acquire()
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo", ["hello"])))
         connection.sendall(message)
         response = kyoto.network.stream.receive(connection)
         self.assertEqual(beretta.decode(next(response)), (":reply", "hello?"))
@@ -75,7 +75,7 @@ class SharedConnectionManagerTestCase(unittest.TestCase):
         self.assertTrue(connection.closed)
         connection = self.connections.acquire()
         self.assertFalse(connection.closed)
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo", ["hello"])))
         connection.sendall(message)
         response = kyoto.network.stream.receive(connection)
         self.assertEqual(beretta.decode(next(response)), (":reply", "hello?"))
@@ -98,18 +98,18 @@ class StreamTestCase(unittest.TestCase):
 
     def setUp(self):
         self.address = ('localhost', 1337)
-        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy.Echo])
+        self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy])
         self.server.start()
         self.connection = gevent.socket.create_connection(self.address)
 
     def test_receive_stream(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":echo", ["hello"])))
         self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         self.assertEqual(beretta.decode(next(response)), (":reply", "hello?"))
 
     def test_receive_large_stream(self):
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":large_echo", ["hello"])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":large_echo", ["hello"])))
         self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
         with self.assertRaises(kyoto.utils.berp.MaxBERPSizeError):
@@ -118,7 +118,7 @@ class StreamTestCase(unittest.TestCase):
     def test_send_file_stream(self):
         info = kyoto.utils.berp.pack(beretta.encode((":info", ":stream", [])))
         self.connection.sendall(info)
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":streaming_echo_length", [])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":streaming_echo_length", [])))
         self.connection.sendall(message)
         with open("/etc/passwd", "rb") as source:
             stream = kyoto.network.stream.send(source)
@@ -134,7 +134,7 @@ class StreamTestCase(unittest.TestCase):
                 yield message
         info = kyoto.utils.berp.pack(beretta.encode((":info", ":stream", [])))
         self.connection.sendall(info)
-        message = kyoto.utils.berp.pack(beretta.encode((":call", ":Echo", ":streaming_echo_length", [])))
+        message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":streaming_echo_length", [])))
         self.connection.sendall(message)
         stream = kyoto.network.stream.send(payload("hello"))
         for chunk in stream:

@@ -1,6 +1,3 @@
-import inspect
-
-
 __version__ = "0.1.0"
 
 
@@ -39,27 +36,3 @@ def is_blocking(function):
     Returns true if function is marked as blocking
     """
     return getattr(function, "blocking", False)
-
-
-class Module(object):
-
-    register_as = None
-
-    def __init__(self):
-        """
-        Module constructor
-        """
-        if not self.register_as:
-            self.register_as = self.__class__.__name__
-
-    def methods(self, as_strings=True):
-        """
-        Returns all public module methods
-        """
-        methods = inspect.getmembers(self, inspect.ismethod)
-        methods = ((k, v) for k, v in methods if not is_private(v))
-        if as_strings:
-            methods = tuple(name for name, func in methods)
-        else:
-            methods = {name: func for name, func in methods}
-        return methods

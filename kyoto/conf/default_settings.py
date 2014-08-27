@@ -41,6 +41,7 @@ LOGGING = {
     "handlers": {
         "default": {
             "level": "INFO",
+            "formatter": "standard",
             "class": "logging.StreamHandler",
         },
     },

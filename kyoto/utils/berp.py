@@ -7,10 +7,15 @@ class MaxBERPSizeError(Exception):
 
 
 def pack(message):
+    length = len(message)
+    if length > kyoto.conf.settings.MAX_BERP_SIZE:
+        message = "Invalid BERP length: {0}/{1}"
+        raise MaxBERPSizeError(
+            message.format(kyoto.conf.settings.MAX_BERP_SIZE, length)
+        )
     if not isinstance(message, bytes):
         message = message.encode("utf-8")
-    return struct.pack(">I", len(message)) + message
-
+    return struct.pack(">I", length) + message
 
 def unpack(message):
     head, tail = message[:4], message[4:]

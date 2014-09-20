@@ -1,12 +1,13 @@
+import kyoto.conf
 import gevent.coros
 import gevent.socket
 
 
 class BaseConnectionManager(object):
 
-    def __init__(self, address, timeout):
+    def __init__(self, address):
         self.address = address
-        self.timeout = timeout
+        self.timeout = kyoto.conf.settings.CONNECTION_TIMEOUT
 
     def create(self):
         """

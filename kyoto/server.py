@@ -1,5 +1,6 @@
 import logging
 import beretta
+import traceback
 
 import gevent
 import gevent.queue
@@ -103,7 +104,14 @@ class BertRPCServer(gevent.server.StreamServer):
         try:
             for request in stream:
                 for response in agent.handle(request):
-                    message = kyoto.utils.berp.pack(response)
+                    try:
+                        message = kyoto.utils.berp.pack(response)
+                    except kyoto.utils.berp.MaxBERPSizeError as exception:
+                        name = exception.__class__.__name__
+                        description = str(exception)
+                        trace = traceback.format_exc().splitlines()
+                        message = (":error", (":user", 500, name, description, trace))
+                        message = kyoto.utils.berp.pack(beretta.encode(message))
                     connection.sendall(message)
         except Exception as exception:
             self.logger.exception(exception)

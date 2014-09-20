@@ -112,8 +112,10 @@ class StreamTestCase(unittest.TestCase):
         message = kyoto.utils.berp.pack(beretta.encode((":call", ":dummy", ":large_echo", ["hello"])))
         self.connection.sendall(message)
         response = kyoto.network.stream.receive(self.connection)
-        with self.assertRaises(kyoto.utils.berp.MaxBERPSizeError):
-            message = next(response)
+        message = beretta.decode(next(response))
+        self.assertEqual(message[0], ":error")
+        self.assertEqual(message[1][0], ":user")
+        self.assertEqual(message[1][2], "MaxBERPSizeError")
 
     def test_send_file_stream(self):
         info = kyoto.utils.berp.pack(beretta.encode((":info", ":stream", [])))

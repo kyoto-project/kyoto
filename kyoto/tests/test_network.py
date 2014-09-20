@@ -15,7 +15,7 @@ class SingleConnectionManagerTestCase(unittest.TestCase):
         self.address = ('localhost', 1337)
         self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy])
         self.server.start()
-        self.connections = kyoto.network.connection.SingleConnectionManager(self.address, 5)
+        self.connections = kyoto.network.connection.SingleConnectionManager(self.address)
 
     def test_get_connection(self):
         connection = self.connections.acquire()
@@ -46,7 +46,7 @@ class SharedConnectionManagerTestCase(unittest.TestCase):
         self.address = ('localhost', 1337)
         self.server = kyoto.server.BertRPCServer([kyoto.tests.dummy])
         self.server.start()
-        self.connections = kyoto.network.connection.SharedConnectionManager(self.address, 5)
+        self.connections = kyoto.network.connection.SharedConnectionManager(self.address)
 
     def test_get_connection(self):
         self.assertFalse(self.connections.semaphore.locked())

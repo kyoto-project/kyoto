@@ -12,6 +12,10 @@ class Service(object):
 
     def __init__(self, address, name):
         self.address = address
+        if not termformat.is_atom(name):
+            message = "Module name must be an atom '{0}' ~> '{1}'"
+            name_as_atom = termformat.binary_to_atom(name)
+            raise ValueError(message.format(name, name_as_atom))
         self.name = name
         self.connections = kyoto.conf.settings.CONNECTION_MANAGER_CLASS(self.address)
 

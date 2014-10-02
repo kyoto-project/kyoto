@@ -17,10 +17,6 @@ class DispatcherTestCase(unittest.TestCase):
         self.address = ("localhost", 1337)
         self.dispatcher = kyoto.dispatch.Dispatcher(self.modules, self.address)
 
-    def test_registered_modules(self):
-        self.assertIn(":dummy", self.dispatcher.modules)
-        self.assertTrue(len(self.dispatcher.modules[":dummy"]) > 0)
-
     def test_unknown_module(self):
         response = self.dispatcher.handle(
             (":call", ":Kittens", ":echo", ["hello"]))

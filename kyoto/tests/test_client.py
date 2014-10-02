@@ -12,9 +12,10 @@ class ServiceTestCase(unittest.TestCase):
         self.server.start()
         self.service = kyoto.client.Service(self.address, ":dummy")
 
-    def test_invalid_service_name_type(self):
+    def test_invalid_module_name_type(self):
         with self.assertRaises(ValueError):
             service = kyoto.client.Service(self.address, "dummy")
+        service = kyoto.client.Service(self.address, ":dummy")
 
     def test_sync_request(self):
         response = self.service.call(":echo", ["hello"])

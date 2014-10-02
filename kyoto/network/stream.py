@@ -20,6 +20,7 @@ def send(source):
             if not chunk:
                 break
             yield kyoto.utils.berp.pack(chunk)
+        source.close()
     elif isinstance(source, types.GeneratorType):
         for chunk in source:
             yield kyoto.utils.berp.pack(chunk)

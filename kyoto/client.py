@@ -27,15 +27,21 @@ class Service(object):
         connection = self.connections.acquire()
         status = self.send_message(connection, (rtype, self.name, function, args))
         stream = kyoto.network.stream.receive(connection, server=False)
+        response = self.handle_response(stream)
+        self.connections.release(connection)
+        return response
+
+    def handle_response(self, stream):
         response = beretta.decode(next(stream))
         rtype = response[0]
         if rtype == ":reply":
             return response[1]
         elif rtype == ":noreply":
             return None
+        elif rtype == ":error":
+            raise ValueError(response)
         else:
             raise NotImplementedError
-        self.connections.release(connection)
 
     def call(self, function, args, **kwargs):
         return self.request(":call", function, args, kwargs)

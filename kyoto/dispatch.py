@@ -32,17 +32,12 @@ class Dispatcher(object):
         """
         Creates dispatching dictionary from given list of modules:
         [kyoto.tests.dummy] => {
-          ":dummy": {
-            ":echo": <function object>,
-          },
+          ":dummy": <module 'kyoto.tests.dummy' object>,
         }
         """
         def transform(module):
             name = kyoto.utils.modules.get_module_name(module)
-            functions = kyoto.utils.modules.get_module_functions(module, False)
-            keys = (termformat.binary_to_atom(k) for k in functions.keys())
-            pairs = izip(keys, functions.values())
-            return (termformat.binary_to_atom(name), dict(pairs))
+            return (termformat.binary_to_atom(name), module)
         return dict((transform(m) for m in modules))
 
     def transform_exceptions(function):
@@ -112,8 +107,11 @@ class Dispatcher(object):
     def handle(self, request, **kwargs):
         rtype, module, function, args = request
         if module in self.modules:
-            if function in self.modules[module]:
-                function = self.modules[module][function]
+            module = self.modules.get(module)
+            name = termformat.atom_to_binary(function)
+            function = getattr(module, name, None)
+            if function and isinstance(function, (types.FunctionType, types.MethodType,
+                                                  types.BuiltinFunctionType, types.BuiltinMethodType)):
                 if kyoto.is_blocking(function):
                     future = kyoto.conf.settings.BLOCKING_POOL.submit(self.handle_call, function, args, **kwargs)
                     if rtype == ":call":
@@ -124,6 +122,7 @@ class Dispatcher(object):
                     response = self.handlers[rtype](function, args, **kwargs)
                 return response
             else:
+                function = termformat.binary_to_atom(name)
                 return (":error", (":server", 2, "NameError", "No such function: '{0}'".format(function), []))
         else:
             return (":error", (":server", 1, "NameError", "No such module: '{0}'".format(module), []))

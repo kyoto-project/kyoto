@@ -20,9 +20,9 @@ class Agent(object):
 
     def __init__(self, modules, address):
         self.state = {
-            'stream': {
-                'on': False,
-                'request': None,
+            "stream": {
+                "on": False,
+                "request": None,
             },
         }
         self.address = address
@@ -47,44 +47,47 @@ class Agent(object):
 
     @transform_response
     def handle(self, message):
-        if not self.state['stream']['on']:
+        if not self.state["stream"]["on"]:
             try:
                 request = beretta.decode(message)
             except ValueError:
                 yield (":error", (":server", 3, "ValueError", "Corrupt request data", []))
             else:
+                self.logger.info("{1}:{2} ~> {0}".format(request, *self.address))
                 if kyoto.utils.validation.is_valid_request(request):
                     for message in self.dispatcher.handle(request):
                         yield message
                 elif kyoto.utils.validation.is_valid_info(request):
                     if request[1] == ":stream":
-                        self.state['stream']['on'] = True
-                        self.state['stream']['queue'] = gevent.queue.Queue()
+                        self.state["stream"]["on"] = True
+                        self.state["stream"]["queue"] = gevent.queue.Queue()
+                    else:
+                        raise NotImplementedError
                 else:
                     yield (":error", (":server", 4, "ValueError", "Invalid MFA: {0}".format(request), []))
         else:
-            if not self.state['stream']['request']:
+            if not self.state["stream"]["request"]:
                 try:
                     request = beretta.decode(message)
                 except ValueError:
-                    self.state['stream']['on'] = False
+                    self.state["stream"]["on"] = False
                     yield (":error", (":server", 3, "ValueError", "Corrupt request data", []))
                 else:
                     if kyoto.utils.validation.is_valid_request(request):
-                        self.state['stream']['request'] = request
-                        self.state['stream']['worker'] = gevent.spawn(self.dispatcher.handle,
-                                                                      self.state['stream']['request'],
-                                                                      stream=self.state['stream']['queue'])
+                        self.state["stream"]["request"] = request
+                        self.state["stream"]["worker"] = gevent.spawn(self.dispatcher.handle,
+                                                                      self.state["stream"]["request"],
+                                                                      stream=self.state["stream"]["queue"])
                     else:
                         raise NotImplementedError
             else:
                 if message:
-                    self.state['stream']['queue'].put(message)
+                    self.state["stream"]["queue"].put(message)
                 else:
-                    self.state['stream']['on'] = False
-                    self.state['stream']['request'] = None
-                    self.state['stream']['queue'].put(StopIteration)
-                    response = self.state['stream']['worker'].get()
+                    self.state["stream"]["on"] = False
+                    self.state["stream"]["request"] = None
+                    self.state["stream"]["queue"].put(StopIteration)
+                    response = self.state["stream"]["worker"].get()
                     for message in response:
                         yield message
 
@@ -94,7 +97,7 @@ class BertRPCServer(gevent.server.StreamServer):
     def __init__(self, modules):
         self.modules = modules
         self.address = kyoto.conf.settings.BIND_ADDRESS
-        self.logger = logging.getLogger('kyoto.server.BertRPCServer')
+        self.logger = logging.getLogger("kyoto.server.BertRPCServer")
         super(BertRPCServer, self).__init__(self.address)
 
     def handle(self, connection, address):

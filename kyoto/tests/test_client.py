@@ -25,5 +25,17 @@ class ServiceTestCase(unittest.TestCase):
         response = self.service.cast(":echo", ["hello"])
         self.assertEqual(response, None)
 
+    def test_sync_stream_request(self):
+        response = self.service.call(":streaming_echo_length", [], stream=self.stream())
+        self.assertEqual(response, 5 * 10)
+
+    def test_async_stream_request(self):
+        response = self.service.cast(":streaming_echo_length", [], stream=self.stream())
+        self.assertEqual(response, None)
+
+    def stream(self):
+        for x in range(10):
+            yield "hello"
+
     def tearDown(self):
         self.server.stop()

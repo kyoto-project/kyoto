@@ -110,8 +110,7 @@ class Dispatcher(object):
             module = self.modules.get(module)
             name = termformat.atom_to_binary(function)
             function = getattr(module, name, None)
-            if function and isinstance(function, (types.FunctionType, types.MethodType,
-                                                  types.BuiltinFunctionType, types.BuiltinMethodType)):
+            if function and kyoto.utils.modules.is_callable_object(function):
                 if kyoto.is_blocking(function):
                     future = kyoto.conf.settings.BLOCKING_POOL.submit(self.handle_call, function, args, **kwargs)
                     if rtype == ":call":

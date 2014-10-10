@@ -1,6 +1,8 @@
+import random
 import unittest
 
 import beretta
+import kyoto.tests.dummy
 import kyoto.utils.berp
 import kyoto.utils.modules
 import kyoto.utils.validation
@@ -75,6 +77,13 @@ class ModulesTestCase(unittest.TestCase):
         self.assertTrue(len(functions) > 0)
         self.assertTrue(isinstance(functions, dict))
         self.assertIn("get_module_functions", functions)
+        functions = kyoto.utils.modules.get_module_functions(random, False)
+        self.assertTrue(len(functions) > 0)
+        self.assertIn("randint", functions)
+        functions = kyoto.utils.modules.get_module_functions(kyoto.tests.dummy, False)
+        self.assertTrue(len(functions) > 0)
+        self.assertIn("lambda_echo", functions)
+        self.assertNotIn("echo_string", functions)
 
     def test_get_module_functions_as_strings(self):
         functions = kyoto.utils.modules.get_module_functions(kyoto.utils.modules, True)

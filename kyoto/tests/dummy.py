@@ -70,3 +70,7 @@ def blocking_echo():
     """
     thread = threading.current_thread()
     return thread.ident
+
+lambda_echo = lambda message: u"{0}?".format(message)
+
+echo_string = "Hello?"

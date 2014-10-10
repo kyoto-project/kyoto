@@ -92,3 +92,8 @@ class DispatcherTestCase(unittest.TestCase):
         this_thread_id = threading.current_thread().ident
         (_, blocking_thread_id) = next(self.dispatcher.handle(request))
         self.assertTrue(this_thread_id != blocking_thread_id)
+
+    def test_call_anonymous_function(self):
+        response = self.dispatcher.handle(
+            (":call", ":dummy", ":lambda_echo", ["hello"]))
+        self.assertEqual(next(response), (":reply", "hello?"))

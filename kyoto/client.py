@@ -24,11 +24,26 @@ class Service(object):
         return connection.sendall(message)
 
     def request(self, rtype, function, args, kwargs):
+        stream = kwargs.get("stream", None)
         connection = self.connections.acquire()
+        if stream:
+            response = self.stream_request(connection, rtype, function, args, stream)
+        else:
+            connection = self.connections.acquire()
+            status = self.send_message(connection, (rtype, self.name, function, args))
+            stream = kyoto.network.stream.receive(connection, server=False)
+            response = self.handle_response(stream)
+        self.connections.release(connection)
+        return response
+
+    def stream_request(self, connection, rtype, function, args, stream):
+        status = self.send_message(connection, (":info", ":stream", []))
         status = self.send_message(connection, (rtype, self.name, function, args))
+        stream = kyoto.network.stream.send(stream)
+        for chunk in stream:
+            connection.sendall(chunk)
         stream = kyoto.network.stream.receive(connection, server=False)
         response = self.handle_response(stream)
-        self.connections.release(connection)
         return response
 
     def handle_response(self, stream):
